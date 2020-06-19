@@ -1,13 +1,19 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lopstructuretest/provider/sign_item_provider.dart';
 import 'package:lopstructuretest/widget/circle_progress.dart';
 import 'package:lopstructuretest/widget/drawer/ly_slide_drawer.dart';
 import 'package:lopstructuretest/widget/expansion/ly_expansion_item.dart';
+import 'package:lopstructuretest/widget/item/ly_change_textsize.dart';
+import 'package:lopstructuretest/widget/item/ly_change_textsize_slide.dart';
 import 'package:lopstructuretest/widget/item/ly_local_text.dart';
 import 'package:lopstructuretest/widget/item/ly_sign_item.dart';
 import 'package:lopstructuretest/widget/listflodexpand/fold_and_expand_list.dart';
+import 'package:lopstructuretest/widget/sectionlistview/lib_scroll_to_index/list_view_delegate.dart';
+import 'package:lopstructuretest/widget/sectionlistview/lib_scroll_to_index/section_list_view.dart';
+import 'package:lopstructuretest/widget/sectionlistview/lib_scroll_to_index/section_scroll_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -44,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool value = false;
   List<int> naChecks = List();
   List<int> normalChecks = List();
-
+  SectionScrollController controller = SectionScrollController();
   void _incrementCounter() {
     setState(() {
       if (type == TextType.all) {
@@ -75,8 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _panelWidthOpen = MediaQuery.of(context).size.width * .60;
-
+    _panelWidthOpen = MediaQuery.of(context).size.width * .70;
     return MultiProvider(
       providers: <SingleChildWidget>[
         ChangeNotifierProvider<SingItemProvider>(
@@ -84,83 +89,114 @@ class _MyHomePageState extends State<MyHomePage> {
         )
       ],
       child: Scaffold(
-        key: _scaffoldKey,
-        appBar: PreferredSize(
-            preferredSize: Size.fromHeight(appbarSize),
-            child: AppBar(
-              title: Text(widget.title),
-            )),
-        body: LySlideDrawer(
-          maxWidth: _panelWidthOpen,
-          minWidth: _panelWidthClosed,
-          padding: EdgeInsets.zero,
-          backdropEnabled: false,
-          parallaxEnabled: false,
-          appbarSize: appbarSize,
-          headHeight: 100,
-          footerHeight: 80,
-          footer: _buildFooter(context),
-          defaultPadding: false,
-          color: Colors.white,
-
-          parallaxOffset: 1,
-          header: _buildHeader(context),
-          slideDirection: SlideDirection.LEFT,
-          body: _buildBody(context),
-          panelBuilder: (sc) => _buildPanel(context),
+          key: _scaffoldKey,
+          appBar: PreferredSize(
+              preferredSize: Size.fromHeight(appbarSize),
+              child: AppBar(
+                title: Text(widget.title),
+              )),
+          body: Consumer<SingItemProvider>(builder: (context, provider, child) {
+            return LySlideDrawer(
+              maxWidth: _panelWidthOpen,
+              minWidth: _panelWidthClosed,
+              padding: EdgeInsets.zero,
+              backdropEnabled: false,
+              parallaxEnabled: false,
+              appbarSize: appbarSize,
+              headHeight: 100,
+              footerHeight: 200,
+              isDraggable: provider.drawerisDragable,
+              footer: _buildFooter(context),
+              defaultPadding: false,
+              color: Colors.white,
+              parallaxOffset: 1,
+              header: _buildHeader(context),
+              slideDirection: SlideDirection.LEFT,
+              body: _buildBody(context, provider),
+              panelBuilder: (sc) => _buildPanel(context),
 //        onPanelSlide: (double pos) => setState(() {
 //          _fabWidth =
 //              pos * (_panelWidthOpen - _panelWidthClosed) + _initFabWidth;
 //        }),
-        ),
-      ),
+            );
+          })),
     );
   }
 
-  Widget _buildBody(BuildContext context) {
-    return Consumer<SingItemProvider>(
-      builder: (context, provider, child) {
-        return Scaffold(
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              print("点击签署");
-            },
-            tooltip: "点击签署",
-            backgroundColor: Colors.red,
-            child: Text(
-              "签署",
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
+  Widget _buildBody(BuildContext context, provider) {
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print("点击签署");
+        },
+        tooltip: "点击签署",
+        backgroundColor: Colors.red,
+        child: Text(
+          "签署",
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.deepOrange,
+        child: Container(
+          height: 40,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Text("na个数:${provider.naChecks.length}"),
+              Text("一般个数:${provider.normalChecks.length}"),
+            ],
           ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
-          bottomNavigationBar: BottomAppBar(
-            color: Colors.deepOrange,
-            child: Container(
-              height: 40,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Text("na个数:${provider.naChecks.length}"),
-                  Text("一般个数:${provider.normalChecks.length}"),
-                ],
-              ),
-            ),
+        ),
+      ),
+      body: _builderList(),
+//          body: ListView.builder(
+//              itemCount: Constants.itemDatas1.length,
+//              shrinkWrap: true,
+//              itemBuilder: (context, index) {
+//                ///itemLists
+//                return LySignItem(
+//                  Constants.itemDatas1[index],
+//                  MediaQuery.of(context).size.width,
+//                  type,
+//                );
+//              }),
+    );
+  }
+
+  Widget _builderList() {
+
+    return SectionListView(
+      sectionHover: true,
+      listViewDelegate: ListViewDelegate(sectionCount: () {
+        return Constants.itemDatas.length;
+      }, rowCountOfSection: (index) {
+        return Constants.itemDatas[index]["items"].length;
+      }),
+      listViewDataSourceDelegate: ListViewDataSourceDelegate(
+          sectionWidgetBuilder:
+              (BuildContext context, IndexPath indexPath, int index) {
+        return Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: Colors.green
           ),
-          body: ListView.builder(
-              itemCount: Constants.itemDatas.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                ///itemLists
-                return LySignItem(
-                  Constants.itemDatas[index],
-                  MediaQuery.of(context).size.width,
-                  type,
-                );
-              }),
+          child: Center(
+            child: Text(Constants.itemDatas[indexPath.section]["processName"],style: TextStyle(color: Colors.white),),
+          ),
+
         );
-      },
+      }, cellWidgetBuilder:
+              (BuildContext context, IndexPath indexPath, int index) {
+        return LySignItem(
+          Constants.itemDatas[indexPath.section]["items"][indexPath.row],
+          MediaQuery.of(context).size.width,
+          type,
+        );
+      }),
+      controller: controller,
     );
   }
 
@@ -184,24 +220,29 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildFooter(BuildContext context) {
     return Container(
       width: _panelWidthOpen,
-      height: 80,
-      child: Center(
-        child: Checkbox(
-          value: this.value,
-          onChanged: (bool value) {
-            print('=====$value');
-            if (value) {
-              print('全选');
-              key.currentState.selectAll();
-            } else {
-              print('取消全选');
-              key.currentState.loadData();
-            }
+      height: 200,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Checkbox(
+            value: this.value,
+            onChanged: (bool value) {
+              print('=====$value');
+              if (value) {
+                print('全选');
+                key.currentState.selectAll();
+              } else {
+                print('取消全选');
+                key.currentState.loadData();
+              }
 //                  key.currentState.test();
-            setState(() {});
-            this.value = !this.value;
-          },
-        ),
+              setState(() {});
+              this.value = !this.value;
+            },
+          ),
+          LyChangeTextSize(),
+          LyChangeTextSizeSlide()
+        ],
       ),
     );
   }

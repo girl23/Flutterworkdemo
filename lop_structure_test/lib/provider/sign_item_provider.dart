@@ -4,6 +4,23 @@ class SingItemProvider extends ChangeNotifier{
 
   List<int> naChecks = List();
   List<int> normalChecks = List();
+  double _textSize = 16.0;
+  bool _drawerisDragable = true;
+
+
+  bool get drawerisDragable => _drawerisDragable;
+
+  set drawerisDragable(bool value) {
+    _drawerisDragable = value;
+    notifyListeners();
+  }
+
+  double get textSize => _textSize;
+
+  set textSize(double value) {
+    _textSize = value;
+    notifyListeners();
+  }
 
   void naCheckedChange(int id,bool check){
     if(check){
@@ -13,8 +30,6 @@ class SingItemProvider extends ChangeNotifier{
       naChecks.remove(id);
     }
     notifyListeners();
-    print("normalChecks:${normalChecks}");
-    print("naChecks:${naChecks}");
   }
   void normalCheckedChange(int id,bool check){
     if(check){
@@ -24,7 +39,5 @@ class SingItemProvider extends ChangeNotifier{
       normalChecks.remove(id);
     }
     notifyListeners();
-    print("normalChecks:${normalChecks}");
-    print("naChecks:${naChecks}");
   }
 }

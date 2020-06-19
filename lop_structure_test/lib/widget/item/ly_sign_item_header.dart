@@ -4,6 +4,7 @@ import 'package:image_pickers/UIConfig.dart';
 import 'package:image_pickers/image_pickers.dart';
 import 'package:lopstructuretest/provider/sign_item_provider.dart';
 import 'package:lopstructuretest/widget/item/ly_image_gallery.dart';
+import 'package:lopstructuretest/widget/pdf_screen.dart';
 import 'package:lopstructuretest/widget/sheetwidget/sheet_widget.dart';
 import 'package:lopstructuretest/widget/sheetwidget/sheet_widget_item.dart';
 import 'package:provider/provider.dart';
@@ -137,12 +138,15 @@ class _LySignItemHeaderState extends State<LySignItemHeader> {
              itemBuilder: (context,index){
                var value = widget.itemData["pdfs"][index];
                return ListTile(
-                 onTap: ()async{
-                   if (await canLaunch(value["link"])) {
-                     await launch(value["link"], forceSafariVC: false);
-                   } else {
-                     throw 'Could not launch $value["link"]';
-                   }
+                 onTap: (){
+                   Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+                     return PDFScreen(path: value["link"],);
+                   }));
+//                   if (await canLaunch(value["link"])) {
+//                     await launch(value["link"], forceSafariVC: false);
+//                   } else {
+//                     throw 'Could not launch $value["link"]';
+//                   }
                  },
                  title: Text(value["text"]),
                );

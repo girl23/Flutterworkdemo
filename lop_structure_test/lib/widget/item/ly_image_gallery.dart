@@ -1,3 +1,4 @@
+import 'package:lopstructuretest/common/imagelib/extend_image_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:photo_view/photo_view.dart';
@@ -10,9 +11,6 @@ class LyImageGallery extends StatefulWidget {
   final List imageList;
 
   const LyImageGallery({Key key, this.imageList}) : super(key: key);
-
-
-
   @override
   _LyImageGalleryState createState() => _LyImageGalleryState();
 }
@@ -30,9 +28,12 @@ class _LyImageGalleryState extends State<LyImageGallery> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: _buildThumbnail(context),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: _buildThumbnail(context),
+      ),
     );
   }
   List<GalleryItem> _buildGalleryItems(BuildContext context){
@@ -176,7 +177,7 @@ class _GalleryPhotoViewWrapperState extends State<GalleryPhotoViewWrapper> {
       heroAttributes: PhotoViewHeroAttributes(tag: item.id),
     )
         : PhotoViewGalleryPageOptions(
-      imageProvider: NetworkImage(item.resource),
+      imageProvider: ExtendedNetworkImageProvider(item.resource,cache: true),
       initialScale: PhotoViewComputedScale.contained,
       minScale: PhotoViewComputedScale.contained * (0.5 + index / 10),
       maxScale: PhotoViewComputedScale.covered * 1.1,

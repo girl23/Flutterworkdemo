@@ -290,7 +290,7 @@ class _LySlideDrawerState extends State<LySlideDrawer>
   // panels and using it for panels that don't want to linked scrolling yields odd results
   Widget _gestureHandler({Widget child}) {
     if (!widget.isDraggable) return child;
-
+    
     return Listener(
       onPointerDown: (PointerDownEvent p) =>
           _vt.addPosition(p.timeStamp, p.position),
@@ -313,6 +313,7 @@ class _LySlideDrawerState extends State<LySlideDrawer>
 
   // handles the sliding gesture
   void _onGestureSlide(double dx, double dy) {
+    if (!widget.isDraggable) return;
     if (widget.slideDirection == SlideDirection.LEFT ||
         widget.slideDirection == SlideDirection.RIGHT) {
       ///抽屉方向为左右的时候
@@ -343,6 +344,7 @@ class _LySlideDrawerState extends State<LySlideDrawer>
 
   // handles when user stops sliding
   void _onGestureEnd(Velocity v) {
+    if (!widget.isDraggable) return;
     double minFlingVelocity = 365.0;
     double kSnap = 8;
 

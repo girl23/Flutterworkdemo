@@ -1,3 +1,5 @@
+import 'package:lopstructuretest/common/imagelib/extend_image_lib.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class GalleryItem {
@@ -19,15 +21,23 @@ class GalleryExampleItemThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 60,
+      width: 60,
       padding: const EdgeInsets.symmetric(horizontal: 5.0),
       child: GestureDetector(
         onTap: onTap,
         child: Hero(
           tag: galleryExampleItem.id,
-          child: Image.network(galleryExampleItem.resource, height: 80.0),
+          child: Image(
+
+            image: ExtendedNetworkImageProvider(galleryExampleItem.resource,cache: true),
+          ),
+
         ),
       ),
     );
   }
 }
+
+
 
